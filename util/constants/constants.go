@@ -9,8 +9,8 @@ const (
 )
 
 const (
-	SmtpUser = "melon_career@163.com"
-	SmtpPass = "ZUTr536tYCxEgCmQ" // 授权码
+	SmtpUser = ""
+	SmtpPass = "" // 授权码
 	SmtpHost = "smtp.163.com"
 	SmtpPort = 465 // SSL端口
 )
