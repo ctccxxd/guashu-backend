@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <style>
+        .qrcode-container {
+            background-color: white;
+            display: inline-block;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .qrcode-placeholder {
+            width: 180px;
+            height: 180px;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            color: #666;
+            font-size: 0.8rem;
+        }
+
+        .qrcode-text {
+            margin-top: 15px;
+            color: #333;
+        }
+    </style>
+
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#00B42A',
+                        warning: '#FF7D00',
+                        danger: '#F53F3F',
+                        neutral: {
+                            100: '#F2F3F5',
+                            200: '#E5E6EB',
+                            300: '#C9CDD4',
+                            400: '#86909C',
+                            500: '#4E5969',
+                            600: '#272E3B',
+                            700: '#1D2129',
+                        }
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-shadow {
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            }
+            .text-balance {
+                text-wrap: balance;
+            }
+            .animate-fadeIn {
+                animation: fadeIn 0.5s ease-in-out;
+            }
+            .animate-slideDown {
+                animation: slideDown 0.3s ease-out;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @keyframes slideDown {
+                from { transform: translateY(-10px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-neutral-100 font-inter text-neutral-700 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        <!-- 报告头部 -->
+        <header class="mb-8 animate-fadeIn">
+            <div class="bg-white rounded-2xl p-6 card-shadow">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h1 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-neutral-700">{{.studentNickname}}  - 模拟面试评估报告</h1>
+                        <p class="text-neutral-500 mt-1">目标岗位：{{.targetPosition}}</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium">
+                            最终评级: {{.rating}}
+                        </div>
+                        <div class="text-sm text-neutral-500">
+                            <i class="fa fa-calendar-o mr-1"></i> {{.startTime}}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 面试信息 -->
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="flex items-center">
+                        <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mr-4">
+                            <span class="text-2xl font-bold text-primary">{{.firstName}}</span>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-lg">面试官</h3>
+                            <p class="text-neutral-500 text-sm">{{.tutorNickname}}</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center">
+                        <i class="fa fa-clock-o text-primary text-xl w-8"></i>
+                        <div>
+                            <h4 class="font-medium">面试时长</h3>
+                                <p class="text-neutral-500 text-sm">{{.totalTime}}min</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center">
+                        <i class="fa fa-graduation-cap text-primary text-xl w-8"></i>
+                        <div>
+                            <h4 class="font-medium">面试总分</h4>
+                            {{if le .interviewScore 60}}-{{else}}{{.interviewScore}}{{end}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 能力概览 -->
+        <section class="mb-8 animate-fadeIn" style="animation-delay: 0.1s">
+            <div class="bg-white rounded-2xl p-6 card-shadow">
+                <h2 class="text-xl font-bold text-neutral-700 mb-6">能力概览</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {{range $index, $item := .highlights}}
+                    {{range $key, $value := $item}}
+                    <div
+                        class="border border-neutral-200 rounded-xl p-5 transition-all duration-300 hover:shadow-lg hover:border-primary/30">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+                                <i class="fa fa-code text-primary"></i>
+                            </div>
+                            <h3 class="font-semibold text-neutral-700">{{$key}}</h3>
+                        </div>
+
+                        <ul class="space-y-2">
+                            {{range $value}}
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                <span class="text-sm text-neutral-600">{{.}}</span>
+                            </li>
+                            {{end}}
+                        </ul>
+                    </div>
+                    {{end}}
+                    {{end}}
+                </div>
+            </div>
+        </section>
+
+        <!-- 优势与发展建议 -->
+        <section class="mb-8 animate-fadeIn" style="animation-delay: 0.4s">
+            <div class="bg-white rounded-2xl p-6 card-shadow">
+                <h2 class="text-xl font-bold text-neutral-700 mb-6">优势与发展建议</h2>
+
+                <div class="bg-primary/5 border border-primary/20 rounded-xl p-5">
+                    <div class="flex items-start">
+                        <div
+                            class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mr-4 shrink-0">
+                            <i class="fa fa-lightbulb-o text-primary text-xl"></i>
+                        </div>
+                        <div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                <div
+                                    class="bg-white p-3 rounded-lg border border-neutral-200 hover:shadow-sm transition-shadow">
+                                    <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                    <span>主要优势</span>
+                                    <p class="text-neutral-600 mb-4">{{.studentAdvantages}}</p>
+                                </div>
+                                <div
+                                    class="bg-white p-3 rounded-lg border border-neutral-200 hover:shadow-sm transition-shadow">
+                                    <i class="fa fa-exclamation-circle text-orange-500 mt-1 mr-2"></i>
+                                    <span>发展建议</span>
+                                    <p class="text-neutral-600 mb-4">{{.tutorSuggestions}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 综合评价 -->
+        <section class="mb-8 animate-fadeIn" style="animation-delay: 0.2s">
+            <div class="bg-white rounded-2xl p-6 card-shadow">
+                <h2 class="text-xl font-bold text-neutral-700 mb-6">综合评价</h2>
+                <div class="space-y-4">
+                    <div class="bg-primary/5 border border-primary/20 rounded-xl p-5">
+                        <p class="text-neutral-600 mb-4">
+                            {{.interviewEvaluation}}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 面试官信息 -->
+        <section class="mb-8 animate-fadeIn" style="animation-delay: 0.2s">
+            <div class="bg-white rounded-2xl p-6 card-shadow">
+                <h2 class="text-xl font-bold text-neutral-700 mb-6">{{.tutorNickname}} - 面试官介绍</h2>
+                <div class="space-y-4">
+                    <div class="bg-primary/5 border border-primary/20 rounded-xl p-5">
+                        <p class="text-neutral-600 mb-4">
+                            {{.platformCertificationStatus}}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 面试官信息 -->
+        <section class="mb-8 animate-fadeIn" style="animation-delay: 0.2s">
+            <div class="bg-white rounded-2xl p-6 card-shadow">
+                <h2 class="text-xl font-bold text-neutral-700 mb-6">预约一对一面试辅导</h2>
+                <div class="qrcode-section">
+                    <div class="flex flex-col items-center">
+                        <div class="qrcode-section">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto"> <!-- 使用网格布局 -->
+                                <div class="flex flex-col items-center">
+                                    <div
+                                        class="qrcode-container w-48 h-48 bg-neutral-100 rounded-xl flex items-center justify-center mb-3 shadow-sm">
+                                        <div class="qrcode-placeholder text-neutral-400">
+                                            微信扫码
+                                        </div>
+                                    </div>
+                                    <p class="qrcode-text text-center text-neutral-600 text-sm">
+                                        扫码添加顾问微信
+                                    </p>
+                                </div>
+
+                                <div class="flex flex-col items-center">
+                                    <div
+                                        class="qrcode-container w-48 h-48 bg-neutral-100 rounded-xl flex items-center justify-center mb-3 shadow-sm">
+                                        <div class="qrcode-placeholder text-neutral-400">
+                                            预约码
+                                        </div>
+                                    </div>
+                                    <p class="qrcode-text text-center text-neutral-600 text-sm">
+                                        扫码预约
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="qrcode-text text-center text-neutral-600">
+                            扫描二维码，预约资深面试官一对一辅导
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 页脚 -->
+        <footer class="mt-10 text-center text-sm text-neutral-500">
+            <p>© 2025 瓜塾智库. 保留所有权利.</p>
+        </footer>
+    </div>
+
+    <script>
+        // 页面加载时的动画效果
+        document.addEventListener('DOMContentLoaded', function () {
+            // 为所有卡片添加进入动画
+            const cards = document.querySelectorAll('.card-shadow');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 100 * index);
+            });
+
+            // 平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
